@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, system-ui, sans-serif; background: #0d0d12; color: #e0e0f0; padding: 16px; height: 100vh; display: flex; flex-direction: column; gap: 12px; }
+  .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .logo-mark { width: 28px; height: 28px; background: linear-gradient(135deg, #6c63ff, #a855f7); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }
+  .logo-text { font-size: 15px; font-weight: 700; }
+  .logo-version { font-size: 10px; color: #555; }
+  p { font-size: 12px; color: #888; line-height: 1.5; }
+  button { width: 100%; padding: 10px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+  .btn-primary { background: linear-gradient(135deg, #6c63ff, #a855f7); color: #fff; }
+  .btn-secondary { background: #1e1e2a; border: 1px solid #2a2a3a; color: #888; }
+  .btn-primary:hover { opacity: 0.9; }
+  .status { font-size: 11px; color: #666; background: #16161e; border: 1px solid #2a2a3a; border-radius: 6px; padding: 8px 10px; font-family: monospace; min-height: 36px; }
+  .divider { height: 1px; background: #2a2a3a; }
+  .section-title { font-size: 10px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+  a { color: #6c63ff; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="logo">
+    <div class="logo-mark">M</div>
+    <span class="logo-text">MAF Studio</span>
+    <span class="logo-version">v0.2</span>
+  </div>
+
+  <p>Import Figma layers as MAF scenes. Select layers, click Import, then animate them in MAF Studio.</p>
+
+  <div class="divider"></div>
+
+  <div class="section-title">Import</div>
+  <button class="btn-primary" onclick="exportSelection()">↑ Import Selection to MAF Studio</button>
+  <div class="status" id="status">Select layers in Figma to import.</div>
+
+  <div class="divider"></div>
+
+  <div class="section-title">Open Studio</div>
+  <a href="http://localhost:3000" target="_blank">Open MAF Studio in browser →</a>
+
+  <div style="flex:1"></div>
+  <button class="btn-secondary" onclick="parent.postMessage({pluginMessage:{type:'close'}}, '*')">Close Plugin</button>
+
+<script>
+  function exportSelection() {
+    document.getElementById('status').textContent = 'Exporting…';
+    parent.postMessage({ pluginMessage: { type: 'export-selection' } }, '*');
+  }
+
+  window.onmessage = (event) => {
+    const msg = event.data.pluginMessage;
+    if (!msg) return;
+
+    if (msg.type === 'scene-ready') {
+      const scene = msg.scene;
+      // Store in localStorage for MAF Studio to pick up
+      try {
+        localStorage.setItem('maf_import', JSON.stringify(scene));
+      } catch(e) {}
+      document.getElementById('status').textContent =
+        `✓ ${scene.layers.length} layers ready. Open MAF Studio and load from JSON panel.`;
+      // Copy to clipboard as fallback
+      navigator.clipboard.writeText(JSON.stringify(scene, null, 2)).catch(() => {});
+    }
+
+    if (msg.type === 'error') {
+      document.getElementById('status').textContent = '⚠ ' + msg.message;
+    }
+  };
+</script>
+</body>
+</html>

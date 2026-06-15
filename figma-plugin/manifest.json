@@ -1,0 +1,9 @@
+{
+  "name": "MAF Studio",
+  "id": "maf-studio-plugin-v02",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "permissions": ["currentuser"]
+}
