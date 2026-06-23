@@ -1,4 +1,5 @@
 import { MAFScene } from '../schema/maf';
+import { useAIStore } from '../store/aiStore';
 
 const SYSTEM_PROMPT = `You are an expert motion graphics AI. Convert natural language into Motion Animation Format (MAF) v0.2 — a JSON scene graph.
 
@@ -68,21 +69,24 @@ Return ONLY valid JSON. No markdown. No explanation.`;
 
 export async function generateScene(prompt: string, onToken?: (t: string) => void): Promise<MAFScene> {
   const apiBase = import.meta.env.VITE_OLLAMA_API_BASE;
-  const model = import.meta.env.VITE_OLLAMA_MODEL;
+  const model = useAIStore.getState().selectedModel;
   console.log('[generateScene] apiBase:', apiBase, 'model:', model);
   console.log('[generateScene] All env vars:', import.meta.env);
-  if (!apiBase || !model) throw new Error('Set VITE_OLLAMA_API_BASE and VITE_OLLAMA_MODEL in .env');
+  if (!apiBase || !model) throw new Error('Set VITE_OLLAMA_API_BASE and select a model.');
 
-  const response = await fetch(`${apiBase}/v1/chat/completions`, {
+  const response = await fetch(`${apiBase}/api/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       model: model,
-      max_tokens: 4000,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: `Create a motion animation for: "${prompt}"` }],
+      format: 'json',
+      options: { num_ctx: 4096 },
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: `Create a motion animation for: "${prompt}"` }
+      ],
     }),
   });
 
@@ -119,22 +123,25 @@ export async function generateScene(prompt: string, onToken?: (t: string) => voi
 
 export async function editScene(scene: MAFScene, instruction: string): Promise<Partial<MAFScene>> {
   const apiBase = import.meta.env.VITE_OLLAMA_API_BASE;
-  const model = import.meta.env.VITE_OLLAMA_MODEL;
-  if (!apiBase || !model) throw new Error('Set VITE_OLLAMA_API_BASE and VITE_OLLAMA_MODEL in .env');
+  const model = useAIStore.getState().selectedModel;
+  if (!apiBase || !model) throw new Error('Set VITE_OLLAMA_API_BASE and select a model.');
 
-  const response = await fetch(`${apiBase}/v1/chat/completions`, {
+  const response = await fetch(`${apiBase}/api/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       model: model,
-      max_tokens: 4000,
-      system: EDIT_SYSTEM_PROMPT,
-      messages: [{
-        role: 'user',
-        content: `Current scene:\n${JSON.stringify(scene, null, 2)}\n\nEdit instruction: "${instruction}"`
-      }],
+      format: 'json',
+      options: { num_ctx: 4096 },
+      messages: [
+        { role: 'system', content: EDIT_SYSTEM_PROMPT },
+        {
+          role: 'user',
+          content: `Current scene:\n${JSON.stringify(scene, null, 2)}\n\nEdit instruction: "${instruction}"`
+        }
+      ],
     }),
   });
 
@@ -162,19 +169,22 @@ export async function editScene(scene: MAFScene, instruction: string): Promise<P
 
 async function repairJson(broken: string): Promise<MAFScene> {
   const apiBase = import.meta.env.VITE_OLLAMA_API_BASE;
-  const model = import.meta.env.VITE_OLLAMA_MODEL;
-  if (!apiBase || !model) throw new Error('Set VITE_OLLAMA_API_BASE and VITE_OLLAMA_MODEL in .env');
+  const model = useAIStore.getState().selectedModel;
+  if (!apiBase || !model) throw new Error('Set VITE_OLLAMA_API_BASE and select a model.');
 
-  const response = await fetch(`${apiBase}/v1/chat/completions`, {
+  const response = await fetch(`${apiBase}/api/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       model: model,
-      max_tokens: 4000,
-      system: 'Fix the following broken JSON so it is valid MAF v0.2. Return ONLY valid JSON, nothing else.',
-      messages: [{ role: 'user', content: broken }],
+      format: 'json',
+      options: { num_ctx: 4096 },
+      messages: [
+        { role: 'system', content: 'Fix the following broken JSON so it is valid MAF v0.2. Return ONLY valid JSON, nothing else.' },
+        { role: 'user', content: broken }
+      ],
     }),
   });
   let data: any;

@@ -33,7 +33,7 @@ export function Timeline() {
   };
 
   return (
-    <div style={{ height: 180, display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
+    <div className="glass-panel" style={{ height: 180, display: 'flex', flexDirection: 'column', flexShrink: 0, margin: '0', borderRadius: '12px 12px 0 0', borderBottom: 'none' }}>
       {/* Controls row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', borderBottom: '1px solid var(--border)' }}>
         <button onClick={() => { setIsPlaying(false); setCurrentTime(0); }} style={ctrlBtn}>⏹</button>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSceneStore } from '../store/scene';
 import { useUIStore } from '../store/ui';
+import { useAIStore } from '../store/aiStore';
 import { generateScene, editScene } from '../ai/generate';
 import { presets } from '../presets';
 
@@ -22,6 +23,7 @@ type Mode = 'generate' | 'edit';
 export function PromptPanel() {
   const { setScene, scene, patchScene } = useSceneStore();
   const { isGenerating, setIsGenerating, generationStatus, setGenerationStatus, addPromptHistory, promptHistory } = useUIStore();
+  const { availableModels, selectedModel, setSelectedModel, isFetchingModels } = useAIStore();
   const [prompt, setPrompt] = useState('');
   const [mode, setMode] = useState<Mode>('generate');
 
@@ -58,6 +60,26 @@ export function PromptPanel() {
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Model Selector */}
+      <div style={{ padding: '12px 12px 0' }}>
+        <div style={sectionLabel}>AI Model</div>
+        <select
+          value={selectedModel}
+          onChange={e => setSelectedModel(e.target.value)}
+          disabled={isGenerating || isFetchingModels}
+          style={{
+            width: '100%', padding: '8px', background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+            borderRadius: 6, color: 'var(--text-primary)', fontSize: 13, outline: 'none', cursor: 'pointer', fontFamily: 'inherit'
+          }}
+        >
+          {availableModels.length === 0 ? (
+            <option value={selectedModel}>{selectedModel} (offline)</option>
+          ) : (
+            availableModels.map(m => <option key={m} value={m}>{m}</option>)
+          )}
+        </select>
+      </div>
+
       {/* Mode toggle */}
       <div style={{ display: 'flex', margin: '10px 12px 0', background: 'var(--bg-elevated)', borderRadius: 8, padding: 3, border: '1px solid var(--border)' }}>
         {(['generate', 'edit'] as Mode[]).map(m => (
@@ -66,6 +88,7 @@ export function PromptPanel() {
             border: mode === m ? '1px solid var(--border)' : '1px solid transparent',
             borderRadius: 6, color: mode === m ? 'var(--text-primary)' : 'var(--text-muted)',
             fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', textTransform: 'capitalize',
+            boxShadow: mode === m ? 'var(--shadow-sm)' : 'none'
           }}>{m === 'generate' ? '✦ Generate' : '✏ Edit'}</button>
         ))}
       </div>
@@ -87,11 +110,10 @@ export function PromptPanel() {
         />
 
         {/* Generate button */}
-        <button onClick={run} disabled={isGenerating || !prompt.trim()} style={{
-          width: '100%', padding: '10px', fontFamily: 'inherit',
-          background: isGenerating || !prompt.trim() ? 'var(--bg-elevated)' : 'linear-gradient(135deg,#6c63ff,#a855f7)',
-          border: 'none', borderRadius: 8, color: isGenerating || !prompt.trim() ? 'var(--text-muted)' : '#fff',
-          fontSize: 13, fontWeight: 600, cursor: isGenerating || !prompt.trim() ? 'not-allowed' : 'pointer',
+        <button className="btn btn-primary" onClick={run} disabled={isGenerating || !prompt.trim()} style={{
+          width: '100%', padding: '10px', 
+          opacity: isGenerating || !prompt.trim() ? 0.5 : 1,
+          cursor: isGenerating || !prompt.trim() ? 'not-allowed' : 'pointer',
         }}>
           {isGenerating ? '⏳ Generating…' : mode === 'generate' ? '✦ Generate  ⌘↵' : '✏ Apply Edit  ⌘↵'}
         </button>

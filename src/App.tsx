@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useUIStore } from './store/ui';
+import { useAIStore } from './store/aiStore';
 import { Toolbar } from './components/Toolbar';
 import { LayerPanel } from './components/LayerPanel';
 import { Canvas } from './components/Canvas';
@@ -7,19 +9,21 @@ import { RightSidebar } from './components/RightSidebar';
 import { ExportModal } from './components/ExportModal';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
-console.log('[DEBUG] VITE_OLLAMA_API_BASE:', import.meta.env.VITE_OLLAMA_API_BASE);
-console.log('[DEBUG] VITE_OLLAMA_MODEL:', import.meta.env.VITE_OLLAMA_MODEL);
-
 export default function App() {
   const { showExportModal } = useUIStore();
+  const fetchModels = useAIStore(state => state.fetchModels);
   useKeyboardShortcuts();
 
+  useEffect(() => {
+    fetchModels();
+  }, [fetchModels]);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-base)', color: 'var(--text-primary)', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' }}>
+    <div className="app-layout">
       <Toolbar />
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+      <div className="workspace-area animate-fade-in">
         <LayerPanel />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div className="canvas-container">
           <Canvas />
           <Timeline />
         </div>

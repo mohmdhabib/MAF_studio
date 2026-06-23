@@ -24,12 +24,14 @@ app.get('/api/health', async (req, res) => {
 // POST /api/generate { prompt: string, max_tokens?: number }
 app.post('/api/generate', async (req, res) => {
   try {
-    const { prompt, max_tokens = 1500 } = req.body || {};
+    const { prompt, max_tokens = 1500, model } = req.body || {};
     if (!prompt) return res.status(400).json({ error: 'Missing prompt in request body' });
     console.log('[proxy] /api/generate prompt length:', (prompt || '').length);
 
+    const targetModel = model || MODEL;
+    
     const body = {
-      model: MODEL,
+      model: targetModel,
       messages: [{ role: 'user', content: prompt }],
       max_tokens,
     };

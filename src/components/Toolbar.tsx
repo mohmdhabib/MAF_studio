@@ -14,18 +14,17 @@ export function Toolbar() {
   ];
 
   return (
-    <div style={{
-      height: 48, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 16px', background: 'var(--bg-base)', borderBottom: '1px solid var(--border)',
-      flexShrink: 0, gap: 12,
+    <div className="glass-header" style={{
+      height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '0 24px', flexShrink: 0, gap: 12, zIndex: 10
     }}>
       {/* Left: logo + name */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 160 }}>
-        <div style={{ width: 26, height: 26, background: 'linear-gradient(135deg,#6c63ff,#a855f7)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff', flexShrink: 0 }}>M</div>
+        <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg,#6c63ff,#ff6584)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, color: '#fff', flexShrink: 0, boxShadow: 'var(--shadow-sm)' }}>M</div>
         <input
           value={scene.meta.name}
           onChange={e => patchScene({ meta: { ...scene.meta, name: e.target.value } })}
-          style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: 13, fontWeight: 600, width: 120, outline: 'none', fontFamily: 'inherit' }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: 15, fontWeight: 600, width: 140, outline: 'none', fontFamily: 'Outfit, sans-serif' }}
         />
       </div>
 
@@ -52,9 +51,8 @@ export function Toolbar() {
         <button onClick={undo} disabled={historyIndex <= 0} title="Undo (Ctrl+Z)" style={{ ...iconBtn, opacity: historyIndex <= 0 ? 0.3 : 1 }}>↩</button>
         <button onClick={redo} disabled={historyIndex >= history.length - 1} title="Redo (Ctrl+Shift+Z)" style={{ ...iconBtn, opacity: historyIndex >= history.length - 1 ? 0.3 : 1 }}>↪</button>
         <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
-        <button onClick={() => { setShowExportModal(true); }} style={{
-          padding: '5px 14px', background: 'linear-gradient(135deg,#6c63ff,#a855f7)',
-          border: 'none', borderRadius: 6, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+        <button className="btn btn-primary" onClick={() => { setShowExportModal(true); }} style={{
+          padding: '8px 16px', fontSize: 13
         }}>🎬 Export Video</button>
       </div>
     </div>

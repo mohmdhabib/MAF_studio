@@ -13,7 +13,7 @@ export function RightSidebar() {
   const { rightPanel, setRightPanel } = useUIStore();
 
   return (
-    <div style={{ width: 260, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--border)', background: 'var(--bg-base)', flexShrink: 0 }}>
+    <div className="glass-panel" style={{ width: 280, display: 'flex', flexDirection: 'column', margin: '0 0', flexShrink: 0, borderRadius: 0, borderRight: 'none', borderTop: 'none', borderBottom: 'none' }}>
       {/* Tabs */}
       <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
         {tabs.map(t => (

@@ -24,7 +24,12 @@ git clone <repo>
 cd maf-studio
 npm install
 cp .env.example .env
-# Add your Anthropic API key to .env
+
+# 1. Start your local Ollama server and pull a model (e.g. ollama run llama3.1)
+# 2. Start the proxy server
+npm run server
+
+# 3. Start the dev server in a new terminal
 npm run dev
 ```
 
@@ -39,7 +44,7 @@ Open `http://localhost:3000`
 ```
 User types: "A purple logo bounces in with a glow"
         ↓
-Claude API reads MAF schema → outputs MAF JSON
+Local LLM (via Ollama) reads MAF schema → outputs MAF JSON
         ↓
 MAF JSON stored in Zustand (single source of truth)
         ↓
@@ -191,5 +196,5 @@ Most AI animation tools are either black-box video generators (uneditable) or re
 
 ---
 
-Built with React + TypeScript + Canvas API + ffmpeg.wasm + Claude API
+Built with React + TypeScript + Canvas API + ffmpeg.wasm + Ollama
 "# MAF_studio" 

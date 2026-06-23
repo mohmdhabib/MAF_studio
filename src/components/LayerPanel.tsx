@@ -34,10 +34,10 @@ export function LayerPanel() {
   };
 
   return (
-    <div style={{ width: 200, display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--border)', background: 'var(--bg-base)', flexShrink: 0 }}>
+    <div className="glass-panel" style={{ width: 220, display: 'flex', flexDirection: 'column', flexShrink: 0, borderRadius: 0, borderLeft: 'none', borderTop: 'none', borderBottom: 'none' }}>
       {/* Header */}
-      <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Layers</span>
+      <div className="glass-header" style={{ padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span className="brand-font" style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Layers</span>
         <div style={{ display: 'flex', gap: 2 }}>
           {(['rect', 'circle', 'text'] as const).map(t => (
             <button key={t} onClick={() => handleAddLayer(t)} title={`Add ${t}`} style={{
@@ -82,10 +82,11 @@ function LayerRow({ layer, isSelected, onSelect, onToggleVisible, onToggleLock, 
     <div
       onClick={onSelect}
       style={{
-        display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px',
+        display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
         background: isSelected ? 'var(--bg-elevated)' : 'none',
-        borderLeft: isSelected ? '2px solid var(--accent)' : '2px solid transparent',
+        borderLeft: isSelected ? '3px solid var(--accent)' : '3px solid transparent',
         cursor: 'pointer', userSelect: 'none',
+        transition: 'all 0.2s ease',
       }}
     >
       <div style={{ width: 8, height: 8, borderRadius: '50%', background: typeColor[layer.type] || '#888', flexShrink: 0 }} />
