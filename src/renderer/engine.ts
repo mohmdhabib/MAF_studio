@@ -126,8 +126,7 @@ export function render(ctx: CanvasRenderingContext2D, scene: MAFScene, time: num
   ctx.fillStyle = scene.meta.background || '#0f0f13';
   ctx.fillRect(0, 0, width, height);
 
-  const reversed = [...scene.layers].reverse();
-  for (const layer of reversed) {
+  for (const layer of scene.layers) {
     drawLayer(ctx, layer, time, scene.assets);
   }
 }

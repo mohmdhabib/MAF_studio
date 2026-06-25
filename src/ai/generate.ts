@@ -78,10 +78,13 @@ export async function generateScene(prompt: string, onToken?: (t: string) => voi
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
+      'Bypass-Tunnel-Reminder': 'true',
     },
     body: JSON.stringify({
       model: model,
       format: 'json',
+      stream: false,
       options: { num_ctx: 4096 },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
@@ -130,10 +133,13 @@ export async function editScene(scene: MAFScene, instruction: string): Promise<P
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
+      'Bypass-Tunnel-Reminder': 'true',
     },
     body: JSON.stringify({
       model: model,
       format: 'json',
+      stream: false,
       options: { num_ctx: 4096 },
       messages: [
         { role: 'system', content: EDIT_SYSTEM_PROMPT },
@@ -176,10 +182,13 @@ async function repairJson(broken: string): Promise<MAFScene> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
+      'Bypass-Tunnel-Reminder': 'true',
     },
     body: JSON.stringify({
       model: model,
       format: 'json',
+      stream: false,
       options: { num_ctx: 4096 },
       messages: [
         { role: 'system', content: 'Fix the following broken JSON so it is valid MAF v0.2. Return ONLY valid JSON, nothing else.' },
@@ -223,8 +232,12 @@ async function extractRawText(data: any, response?: Response): Promise<string> {
       raw = data.choices.map((c: any) => (c.message?.content ?? c.text ?? JSON.stringify(c))).join('');
     } else if (typeof data === 'string') {
       raw = data;
+    } else if (data.message && typeof data.message.content === 'string') {
+      raw = data.message.content;
     } else if (data.message && typeof data.message === 'string') {
       raw = data.message;
+    } else if (data.response && typeof data.response === 'string') {
+      raw = data.response;
     } else {
       // Fallback: try to stringify small objects
       try {

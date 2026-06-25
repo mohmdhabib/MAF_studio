@@ -8,15 +8,30 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
-const API_BASE = process.env.VITE_OLLAMA_API_BASE || 'http://localhost:11434';
+const API_BASE = process.env.OLLAMA_TUNNEL_URL || process.env.VITE_OLLAMA_API_BASE || 'http://localhost:11434';
 const MODEL = process.env.VITE_OLLAMA_MODEL || 'llama3.1';
 
 app.get('/api/health', async (req, res) => {
   try {
-    const r = await fetch(`${API_BASE}/api/tags`);
-    const json = await r.json();
+    console.log(`[HEALTH] Fetching models from ${API_BASE}...`);
+    const r = await fetch(`${API_BASE}/api/tags`, {
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+        'Bypass-Tunnel-Reminder': 'true'
+      }
+    });
+    console.log(`[HEALTH] Response Status: ${r.status} ${r.statusText}`);
+    const text = await r.text();
+    console.log(`[HEALTH] Response Body: ${text.substring(0, 200)}`);
+    
+    if (!r.ok) {
+      throw new Error(`Ollama API returned status ${r.status}: ${text}`);
+    }
+    
+    const json = JSON.parse(text);
     return res.json({ ok: true, models: json.models || [] });
   } catch (err) {
+    console.error(`[HEALTH] Error Details:`, err);
     return res.status(502).json({ ok: false, error: String(err) });
   }
 });
@@ -70,6 +85,33 @@ app.post('/api/generate', async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({ error: String(err) });
+  }
+});
+
+// POST /api/chat
+app.post('/api/chat', async (req, res) => {
+  try {
+    const r = await fetch(`${API_BASE}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+        'Bypass-Tunnel-Reminder': 'true'
+      },
+      body: JSON.stringify(req.body)
+    });
+    
+    if (!r.ok) {
+      const err = await r.text();
+      return res.status(r.status).send(err);
+    }
+    
+    // Stream response if supported, else just json
+    const text = await r.text();
+    res.send(text);
+  } catch (err) {
+    console.error(`[CHAT] Error:`, err);
+    res.status(502).json({ ok: false, error: String(err) });
   }
 });
 
